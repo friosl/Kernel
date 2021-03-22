@@ -1,12 +1,11 @@
 import socket
 import os
+from os import path
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
 
-from dearpygui.core import *
-from dearpygui.simple import *
-
-set_main_window_size(800,800)
-#show_about()
-#show_documentation()
 pid = os.getpid() #Process ID
 
 HEADER = 16
@@ -28,17 +27,73 @@ def sendPID():
     client.send(message) 
     print(client.recv(2048).decode(FORMAT)) #When we receive the answer from server, Importante corregir el recv para mostrar en pantalla lo que ha sucedido
 
-with window("Simple GUI", width= 520, height= 677):
-    for i in range(3):
+def choose_process(event):
+    selection = event.widget.get()
+    if(selection == "Open app"):
+        open_application()
+    elif(selection == "Close app"):
+        close_application()
+    elif(selection == "Folder"):
+        create_folder()
+    else: 
+        print("No valid option")
     
-        print("GUI is running---")
-        set_window_pos("Simple GUI",0,0)
-        add_separator()
-        add_spacing(count=12)
-        add_text("This is a simple text for this simple gui", color = [232,163,33])
-        add_separator()
-        add_text("Next command", color = [232,163,33])
+
+def open_application():
+    pass
+
+def close_application():
+    pass
+
+
+def create_folder():
+    open_new_window = tk.Toplevel(window)
+    open_new_window.title("New window")
+    create_lable = tk.Label(open_new_window, text="Manage Folder", fg="black", font=("Arial", 15))
+    folder_name = ttk.Entry(open_new_window)
+    create_boton = tk.Button(open_new_window, text= "Create Folder", command = lambda: make_folder(folder_name.get()))
+    delete_boton = tk.Button(open_new_window, text= "Delete Folder", command = lambda: delete_folder(folder_name.get()))
+
+    open_new_window.geometry("150x300")
+
+    create_lable.pack()
+    folder_name.pack()
+    create_boton.pack()
+    delete_boton.pack()
+
+
+
+def make_folder(folder_name):
+    if folder_name != "":
+        if path.exists(folder_name):
+            pass
+        else: 
+            os.mkdir(folder_name)
+
+def delete_folder(folder_name):
+    if folder_name != "":
+        if path.exists(folder_name):
+            os.rmdir(folder_name)
 
 
 sendPID()
-start_dearpygui()
+
+window = Tk()
+window.title("Sistemas Operativos")
+window.state('zoomed')
+
+list_title = tk.Label(window, text="Select one:", fg="black", )
+list_title.config(anchor=CENTER)
+list_title.pack()
+
+lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder"])
+lista.pack()
+lista.current()
+lista.bind("<<ComboboxSelected>>", choose_process)
+
+window.mainloop()
+
+
+
+
+
