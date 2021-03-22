@@ -19,13 +19,14 @@ client.connect(ADDR)
 print(pid) #Pasar este PID por sockets al kernel
 #Meter esto de abajo dentro de un método
 def sendPID():
+    
     message = str(pid).encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
     client.send(send_length)
     client.send(message) 
-    print(client.recv(2048).decode(FORMAT)) #When we receive the answer from server, Importante corregir el recv para mostrar en pantalla lo que ha sucedido
+    #print(client.recv(2048).decode(FORMAT)) #When we receive the answer from server, Importante corregir el recv para mostrar en pantalla lo que ha sucedido
 
 def choose_process(event):
     selection = event.widget.get()
@@ -76,6 +77,9 @@ def delete_folder(folder_name):
             os.rmdir(folder_name)
 
 
+def submit_callback(sender,data):
+    print("Bloquea")
+    action = client.recv(2048).decode(FORMAT)
 sendPID()
 
 window = Tk()
