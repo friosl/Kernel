@@ -4,7 +4,7 @@ import socket
 import threading 
 import os
 import os.path
-
+import subprocess
 import time
 
 HEADER = 16
@@ -16,10 +16,13 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 arrConn = []
 
-kernel_send_app = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+"""kernel_send_app = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 PORT_app = 5053
 ADDR= (HOST,PORT_app)
 kernel_send_app.connect(ADDR)
+"""
+
+
 
 def client_req(conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
@@ -35,9 +38,9 @@ def client_req(conn,addr):
             print(f"[{addr}] {msg}")
             #print(conn)
             if (target == "dst:Application"):
-                kernel_send_app.send(("open app").encode(FORMAT))
+                #kernel_send_app.send(("open app").encode(FORMAT))
                 #print("Enviar mensaje a app")
-                #conn = arrConn[2]
+                conn = arrConn[2]
                 # print(conn)
                 print("antes de error")
                 conn.send("Open app".encode(FORMAT))
@@ -61,8 +64,8 @@ def client_req(conn,addr):
 
 def start():
     server.listen()
-    print(f"server is listenning on {SERVER}")
-    gui= False
+    print(f"server is listenning on {HOST}")
+    subprocess.call("start.bat")
     while True:
         conn, addr = server.accept()
         #print("address es: ")
