@@ -7,76 +7,77 @@ import os.path
 import subprocess
 import time
 
-HEADER = 16
+HEADER = 1024
 PORT = 5050
 FORMAT = "utf-8"
 HOST = socket.gethostbyname(socket.gethostname())
 ADDR = (HOST, PORT)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
-arrConn = []
 
-"""kernel_send_app = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-PORT_app = 5053
-ADDR= (HOST,PORT_app)
-kernel_send_app.connect(ADDR)
-"""
+connections = {}
+arrCon = []
+appbool = False
+guibool = False
+logsbool = False
 
-
-
+#---------------------------------- C L I E N T   R E Q U E S T  --------------------------------------
 def client_req(conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-
+    global appbool, guibool, logsbool
     while True:
-        msg_length = conn.recv(HEADER).decode(FORMAT) #Stop message
-        if(msg_length):
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            msg_array = msg.split(',')
-            target = msg_array[2]
-            #print(msg_array)
-            print(f"[{addr}] {msg}")
-            #print(conn)
-            if (target == "dst:Application"):
-                #kernel_send_app.send(("open app").encode(FORMAT))
-                #print("Enviar mensaje a app")
-                conn = arrConn[2]
-                # print(conn)
-                print("antes de error")
-                conn.send("Open app".encode(FORMAT))
-                conn = arrConn[1]
-                conn.send(msg_array[3].encode(FORMAT))
-            elif (target == "dst:log"):
-                print("Enviar mensaje a LOG")
-                coon = arrConn[1]
-                conn.send(msg_array[3].encode(FORMAT))
-            elif (target == "dst:gui"):
-                print("Enviar mensaje a GUI")
-                coon = arrConn[1]
-
-                conn.send(msg_array[3].encode(FORMAT))
-            #conn.sendall("msg received".encode(FORMAT))   
+        msg = None
+        try:
+            msg=conn.recv(HEADER).decode(FORMAT)
+        except:
+            print("Error recieving")
+        if appbool == False or guibool == False or logsbool== False:
+            if msg.startswith("App") and appbool == False:
+                appbool=True
+                print("APP CONNECTED")
+                connections["App"]= conn
+            elif msg.startswith("Gui") and guibool== False:
+                guibool=True
+                print("GUI CONNECTED")
+                connections["Gui"]= conn
+            elif msg.startswith("Log") and logsbool==False:
+                logsbool=True
+                print("LOGS CONNECTED")
+                connections["Log"]= conn
         else:
-            connected=False 
-    conn.close()
-    server.close()
-    sys.exit()    
+            print("Entramos a la gloria pai")
+            print("[MSG]: ",msg)
+            msg_array = msg.split(',')
+            print(msg_array)
+            target = msg_array[2]
+            if (target == "dst:Application"):
+                destino=connections["App"]
+                message = msg.encode(FORMAT) 
+                destino.send(message)
+            elif(target == "dst:log"):
+                message = msg.encode(FORMAT)                 
+                destino=connections["Log"]
+                destino.send(message)
+            elif(target=="dst:gui"):
+                message = msg.encode(FORMAT) 
+                destino=connections["Gui"]
+                destino.send(message)        
 
+
+
+#--------------------------------------- S T A R T -------------------------------
 def start():
     server.listen()
-    print(f"server is listenning on {HOST}")
     subprocess.call("start.bat")
+    print(f"server is listenning on {HOST}")
+
     while True:
         conn, addr = server.accept()
-        #print("address es: ")
-        #print(addr[1])
-        arrConn.append(conn)      
         thread = threading.Thread(target=client_req, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
 
     
 print("Server is starting")
-
 start()
 

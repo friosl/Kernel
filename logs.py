@@ -8,21 +8,19 @@ import os
 
 pid = os.getpid() #Process ID
 
-HEADER = 16
-PORT   = 5052
+HEADER = 1024
+PORT   = 5050
 FORMAT = "utf-8"
 HOST = socket.gethostbyname(socket.gethostname()) #Nombre e IP de ntro pc
 
-ADDR= (HOST,PORT)
-log_listen =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-log_listen.bind(ADDR)
-log_listen.listen() 
 
 logs_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-PORT = 5050
 ADDR= (HOST,PORT)
 logs_send.connect(ADDR)
 
+print("Sending message")
+msg="Log"
+logs_send.send(msg.encode(FORMAT))
 
 def backup_logs_read():
     logs_here.delete('1.0',END)

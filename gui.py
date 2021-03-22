@@ -10,23 +10,22 @@ from tkinter import messagebox
 
 pid = os.getpid() #Process ID
 
-HEADER = 16
-PORT   = 5051
+HEADER = 1024
+PORT = 5050
 FORMAT = "utf-8"
 HOST = socket.gethostbyname(socket.gethostname()) #Nombre e IP de ntro pc
-ADDR   = (HOST, PORT)
-gui_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-gui_listen.bind(ADDR)
-gui_listen.listen(5) 
-
 gui_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-PORT = 5050
 ADDR= (HOST,PORT)
 gui_send.connect(ADDR)
 print("GUI binded to port 5051 and host is the same, listening")
 
-print(pid) #Pasar este PID por sockets al kernel
+#print(pid) #Pasar este PID por sockets al kernel
 #Meter esto de abajo dentro de un método
+
+print("Sending message")
+msg="Gui"
+gui_send.send(msg.encode(FORMAT))
+
 
 def sendPID():
     message = str(pid).encode(FORMAT)
@@ -55,11 +54,13 @@ def open_application():
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
     default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date
+    #print("Before: ", default_message)
     message = default_message.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
-    gui_send.send(send_length)
+    #print("After encode:",message)
+    #msg_length = len(message)
+    #send_length = str(msg_length).encode(FORMAT)
+    #send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
+    #gui_send.send(send_length)
     gui_send.send(message)
     #Response (Message was received) 
     #print(client.recv(2048).decode(FORMAT))
@@ -116,7 +117,6 @@ lista.bind("<<ComboboxSelected>>", choose_process)
 
 
 window.mainloop()
-
 
 
 
