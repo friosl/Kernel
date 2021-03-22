@@ -54,7 +54,7 @@ def open_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send, src:GUI, dst:Application, msg:'\log: " + current_time + " "+ current_date
+    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date
     message = default_message.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
