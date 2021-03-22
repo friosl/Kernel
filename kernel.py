@@ -14,19 +14,24 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
-
+arrConn = []
 
 def client_req(conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     connected= True
     while(connected):
         msg_length = conn.recv(HEADER).decode(FORMAT) #Stop message
-        msg2 = msg_length[0:1]    
         if(msg_length):
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
+            msg_array = msg.split(',')
+            print(msg_array)
             print(f"[{addr}] {msg}")
-            conn.send("msg received".encode(FORMAT))
+            print("Connection: ", conn)
+            if (msg_array[2] == "dst:Application"):
+                print("Enviar mensaje a app")
+            #conn.send("msg received".encode(FORMAT))
+            conn.sendall("msg received".encode(FORMAT))
         else:
             connected=False 
     conn.close()
@@ -38,7 +43,8 @@ def start():
     print(f"server is listenning on {SERVER}")
     gui= False
     while True:
-        conn, addr = server.accept()      
+        conn, addr = server.accept()
+       # arrConn.append(add)      
         thread = threading.Thread(target=client_req, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")

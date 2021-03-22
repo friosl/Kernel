@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 import time
+import socket
+
+
 
 win = Tk()
 

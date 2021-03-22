@@ -1,5 +1,7 @@
 import socket
 import os
+from datetime import datetime
+from datetime import date
 from os import path
 import tkinter as tk
 from tkinter import *
@@ -19,7 +21,6 @@ client.connect(ADDR)
 print(pid) #Pasar este PID por sockets al kernel
 #Meter esto de abajo dentro de un método
 def sendPID():
-    
     message = str(pid).encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
@@ -41,7 +42,19 @@ def choose_process(event):
     
 
 def open_application():
-    pass
+    now = datetime.now()
+    today = date.today()
+    current_time = now.strftime("%H:%M:%S")
+    current_date = today.strftime("%d/%m/%Y")
+    default_message = "cmd:send, src:GUI, dst:Application, msg:'\log: " + current_time + " "+ current_date
+    message = default_message.encode(FORMAT)
+    msg_length = len(message)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
+    client.send(send_length)
+    client.send(message)
+    #Response (Message was received) 
+    print(client.recv(2048).decode(FORMAT))
 
 def close_application():
     pass
@@ -80,11 +93,12 @@ def delete_folder(folder_name):
 def submit_callback(sender,data):
     print("Bloquea")
     action = client.recv(2048).decode(FORMAT)
-sendPID()
+#sendPID()
 
 window = Tk()
 window.title("Sistemas Operativos")
-window.state('zoomed')
+window.geometry("150x300")
+#window.state('zoomed')
 
 list_title = tk.Label(window, text="Select one:", fg="black", )
 list_title.config(anchor=CENTER)
