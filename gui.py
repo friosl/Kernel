@@ -11,22 +11,30 @@ from tkinter import messagebox
 pid = os.getpid() #Process ID
 
 HEADER = 16
-PORT   = 5050
+PORT   = 5051
 FORMAT = "utf-8"
-SERVER = socket.gethostbyname(socket.gethostname()) #Nombre e IP de ntro pc
-ADDR   = (SERVER, PORT)
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(ADDR)
+HOST = socket.gethostbyname(socket.gethostname()) #Nombre e IP de ntro pc
+ADDR   = (HOST, PORT)
+gui_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+gui_listen.bind(ADDR)
+gui_listen.listen(5) 
+
+gui_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+PORT = 5050
+ADDR= (HOST,PORT)
+gui_send.connect(ADDR)
+print("GUI binded to port 5051 and host is the same, listening")
 
 print(pid) #Pasar este PID por sockets al kernel
 #Meter esto de abajo dentro de un método
+
 def sendPID():
     message = str(pid).encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
-    client.send(send_length)
-    client.send(message) 
+    gui_send.send(send_length)
+    gui_send.send(message) 
     #print(client.recv(2048).decode(FORMAT)) #When we receive the answer from server, Importante corregir el recv para mostrar en pantalla lo que ha sucedido
 
 def choose_process(event):
@@ -51,10 +59,10 @@ def open_application():
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
-    client.send(send_length)
-    client.send(message)
+    gui_send.send(send_length)
+    gui_send.send(message)
     #Response (Message was received) 
-    print(client.recv(2048).decode(FORMAT))
+    #print(client.recv(2048).decode(FORMAT))
 
 def close_application():
     pass
@@ -89,10 +97,6 @@ def delete_folder(folder_name):
         if path.exists(folder_name):
             os.rmdir(folder_name)
 
-
-def submit_callback(sender,data):
-    print("Bloquea")
-    action = client.recv(2048).decode(FORMAT)
 #sendPID()
 
 window = Tk()
@@ -108,6 +112,8 @@ lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder"])
 lista.pack()
 lista.current()
 lista.bind("<<ComboboxSelected>>", choose_process)
+
+
 
 window.mainloop()
 

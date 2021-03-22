@@ -18,22 +18,24 @@ arrConn = []
 
 def client_req(conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    connected= True
-    while(connected):
-        msg_length = conn.recv(HEADER).decode(FORMAT) #Stop message
-        if(msg_length):
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            msg_array = msg.split(',')
-            print(msg_array)
-            print(f"[{addr}] {msg}")
-            print("Connection: ", conn)
-            if (msg_array[2] == "dst:Application"):
-                print("Enviar mensaje a app")
-            #conn.send("msg received".encode(FORMAT))
-            conn.sendall("msg received".encode(FORMAT))
-        else:
-            connected=False 
+
+    msg_length = conn.recv(HEADER).decode(FORMAT) #Stop message
+    if(msg_length):
+        msg_length = int(msg_length)
+        msg = conn.recv(msg_length).decode(FORMAT)
+        msg_array = msg.split(',')
+        #print(msg_array)
+        print(f"[{addr}] {msg}")
+        #print(conn)
+        if (msg_array[2] == " dst:Application"):
+            print("Enviar mensaje a app")
+            conn = arrConn[1]
+            print(conn)
+            
+        conn.send("msg received".encode(FORMAT))
+        #conn.sendall("msg received".encode(FORMAT))
+    else:
+        connected=False 
     conn.close()
     server.close()
     sys.exit()    
@@ -44,7 +46,9 @@ def start():
     gui= False
     while True:
         conn, addr = server.accept()
-       # arrConn.append(add)      
+        #print("address es: ")
+        #print(addr[1])
+        #arrConn.append(conn)      
         thread = threading.Thread(target=client_req, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
