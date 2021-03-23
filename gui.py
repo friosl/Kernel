@@ -40,8 +40,6 @@ def choose_process(event):
         close_application()
     elif(selection == "Folder"):
         folder_popup()
-    elif(selection == "Logs"):
-        backup_logs_read()
     else: 
         print("No valid option")
     
@@ -94,7 +92,7 @@ def make_folder(folder_name):
             today = date.today()
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
-            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + "CREATE FOLDER"
+            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " CREATE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
 
@@ -106,7 +104,7 @@ def delete_folder(folder_name):
             today = date.today()
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
-            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + "DELETE FOLDER"
+            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " DELETE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
 #sendPID()
@@ -134,7 +132,7 @@ list_title = tk.Label(window, text="Select one:", fg="black", )
 list_title.config(anchor=CENTER)
 list_title.pack()
 
-lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder", "Logs"])
+lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder"])
 lista.pack()
 lista.current()
 lista.bind("<<ComboboxSelected>>", choose_process)

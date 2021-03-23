@@ -40,6 +40,7 @@ while True:
     print(msg)
     back_up_file = open("logs_backup.txt", 'a')
     back_up_file.write(msg+"\n")
+    back_up_file.close()
 """
 win = Tk()
 
