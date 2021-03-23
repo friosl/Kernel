@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from random import randrange
 
 pid = os.getpid() #Process ID
 
@@ -49,7 +50,15 @@ def open_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ ",OPEN APP"
+    status=randrange(1,10)
+    if(status>=1 and status<=7):
+        strstatus="PROC"
+    elif(status==8 or status==9):
+        strstatus="BUSY"
+    elif(status==10):
+        strstatus="ERROR"
+    
+    default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ ",OPEN APP"
     message = default_message.encode(FORMAT)
     #msg_length = len(message)
     #send_length = str(msg_length).encode(FORMAT)
@@ -64,7 +73,14 @@ def close_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + ",CLOSE APP"
+    status=randrange(1,10)
+    if(status>=1 and status<=7):
+        strstatus="PROC"
+    elif(status==8 or status==9):
+        strstatus="BUSY"
+    elif(status==10):
+        strstatus="ERROR"
+    default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + ",CLOSE APP"
     message = default_message.encode(FORMAT)
     gui_send.send(message)
 
@@ -87,33 +103,42 @@ def make_folder(folder_name):
         if path.exists(folder_name):
             pass
         else: 
-            os.mkdir(folder_name)
             now = datetime.now()
             today = date.today()
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
-            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " CREATE FOLDER"
+            status=randrange(1,10)
+            if(status>=1 and status<=7):
+                strstatus="PROC" #MESSAGE PROCESSED
+                os.mkdir(folder_name)
+            elif(status==8 or status==9):
+                strstatus="BUSY" #MESSAGE BUSY
+            elif(status==10):
+                strstatus="ERROR" #MESSAGE ERROR
+
+            default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " CREATE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
 
 def delete_folder(folder_name):
     if folder_name != "":
         if path.exists(folder_name):
-            os.rmdir(folder_name)
             now = datetime.now()
             today = date.today()
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
-            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " DELETE FOLDER"
+            status=randrange(1,10)
+            if(status>=1 and status<=7):
+                strstatus="PROC"
+                os.rmdir(folder_name)
+            elif(status==8 or status==9):
+                strstatus="BUSY"
+            elif(status==10):
+                strstatus="ERROR"
+            default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " DELETE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
 #sendPID()
-#def open_logs():
-#    open_new_window = tk.Toplevel(window)
-#    open_new_window.title("Show logs")
-#    open_new_window.geometry("150x300")
-
-
 
 def backup_logs_read():
     logs_here.delete('1.0',END)
@@ -121,12 +146,11 @@ def backup_logs_read():
     log_information = back_up_file.read()
     print(log_information)
     logs_here.insert(tk.END, log_information)
-    #log_information = ""
     back_up_file.close()
 window = Tk()
 window.title("Sistemas Operativos")
 window.state('zoomed')
-#window.state('zoomed')
+
 
 list_title = tk.Label(window, text="Select one:", fg="black", )
 list_title.config(anchor=CENTER)
@@ -137,8 +161,6 @@ lista.pack()
 lista.current()
 lista.bind("<<ComboboxSelected>>", choose_process)
 
-#logs_here = tk.Text(window)
-#logs_here.pack()
 wrapper1 = LabelFrame(window)
 wrapper2 = LabelFrame(window)
 

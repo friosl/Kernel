@@ -49,21 +49,27 @@ def client_req(conn,addr):
         else:
             msg_array = msg.split(',')
             print("MSG ARRAY KERNEL:", msg_array)
-            target = msg_array[2]
-            if (target == "dst:Application"):
-                destino=connections["App"]
-                message = msg.encode(FORMAT) 
-                destino.send(message)
-            elif(target == "dst:log"):
-                message = msg.encode(FORMAT)                 
+            status=msg_array[0]
+            if(status=="status:PROC"):
+                target = msg_array[3]
+                if (target == "dst:Application"):
+                    destino=connections["App"]
+                    message = msg.encode(FORMAT) 
+                    destino.send(message)
+                elif(target == "dst:log"):
+                    message = msg.encode(FORMAT)                 
+                    destino=connections["Log"]
+                    destino.send(message)
+                elif(target=="dst:gui"):
+                    message = msg.encode(FORMAT) 
+                    destino=connections["Gui"]
+                    destino.send(message)        
+            elif(status=="status:BUSY"):
+                message=msg.encode(FORMAT)
                 destino=connections["Log"]
                 destino.send(message)
-            elif(target=="dst:gui"):
-                message = msg.encode(FORMAT) 
-                destino=connections["Gui"]
-                destino.send(message)        
-
-
+            elif(status=="status:ERROR"):
+                print("Error")
 
 #--------------------------------------- S T A R T -------------------------------
 def start():
