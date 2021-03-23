@@ -48,7 +48,7 @@ def client_req(conn,addr):
                 connections["Log"]= conn
         else:
             msg_array = msg.split(',')
-            print(msg_array)
+            print("MSG ARRAY KERNEL:", msg_array)
             target = msg_array[2]
             if (target == "dst:Application"):
                 destino=connections["App"]

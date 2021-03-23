@@ -51,7 +51,7 @@ def open_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ "OPEN APP"
+    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ ",OPEN APP"
     message = default_message.encode(FORMAT)
     #msg_length = len(message)
     #send_length = str(msg_length).encode(FORMAT)
@@ -66,7 +66,7 @@ def close_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + "CLOSE APP"
+    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + ",CLOSE APP"
     message = default_message.encode(FORMAT)
     gui_send.send(message)
 
