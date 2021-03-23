@@ -25,12 +25,14 @@ logsbool = False
 def client_req(conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     global appbool, guibool, logsbool
+    
     while True:
         msg = None
         try:
             msg=conn.recv(HEADER).decode(FORMAT)
         except:
-            print("Error recieving")
+            print("Error receiving")
+
         if appbool == False or guibool == False or logsbool== False:
             if msg.startswith("App") and appbool == False:
                 appbool=True
@@ -45,8 +47,6 @@ def client_req(conn,addr):
                 print("LOGS CONNECTED")
                 connections["Log"]= conn
         else:
-            print("Entramos a la gloria pai")
-            print("[MSG]: ",msg)
             msg_array = msg.split(',')
             print(msg_array)
             target = msg_array[2]

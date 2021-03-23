@@ -19,10 +19,6 @@ ADDR= (HOST,PORT)
 gui_send.connect(ADDR)
 print("GUI binded to port 5051 and host is the same, listening")
 
-#print(pid) #Pasar este PID por sockets al kernel
-#Meter esto de abajo dentro de un método
-
-print("Sending message")
 msg="Gui"
 gui_send.send(msg.encode(FORMAT))
 
@@ -43,7 +39,9 @@ def choose_process(event):
     elif(selection == "Close app"):
         close_application()
     elif(selection == "Folder"):
-        create_folder()
+        folder_popup()
+    elif(selection == "Logs"):
+        backup_logs_read()
     else: 
         print("No valid option")
     
@@ -53,10 +51,8 @@ def open_application():
     today = date.today()
     current_time = now.strftime("%H:%M:%S")
     current_date = today.strftime("%d/%m/%Y")
-    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date
-    #print("Before: ", default_message)
+    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ "OPEN APP"
     message = default_message.encode(FORMAT)
-    #print("After encode:",message)
     #msg_length = len(message)
     #send_length = str(msg_length).encode(FORMAT)
     #send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
@@ -66,24 +62,26 @@ def open_application():
     #print(client.recv(2048).decode(FORMAT))
 
 def close_application():
-    pass
+    now = datetime.now()
+    today = date.today()
+    current_time = now.strftime("%H:%M:%S")
+    current_date = today.strftime("%d/%m/%Y")
+    default_message = "cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + "CLOSE APP"
+    message = default_message.encode(FORMAT)
+    gui_send.send(message)
 
-
-def create_folder():
+def folder_popup():
     open_new_window = tk.Toplevel(window)
     open_new_window.title("New window")
     create_lable = tk.Label(open_new_window, text="Manage Folder", fg="black", font=("Arial", 15))
     folder_name = ttk.Entry(open_new_window)
     create_boton = tk.Button(open_new_window, text= "Create Folder", command = lambda: make_folder(folder_name.get()))
     delete_boton = tk.Button(open_new_window, text= "Delete Folder", command = lambda: delete_folder(folder_name.get()))
-
     open_new_window.geometry("150x300")
-
     create_lable.pack()
     folder_name.pack()
     create_boton.pack()
     delete_boton.pack()
-
 
 
 def make_folder(folder_name):
@@ -92,30 +90,84 @@ def make_folder(folder_name):
             pass
         else: 
             os.mkdir(folder_name)
+            now = datetime.now()
+            today = date.today()
+            current_time = now.strftime("%H:%M:%S")
+            current_date = today.strftime("%d/%m/%Y")
+            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + "CREATE FOLDER"
+            message = default_message.encode(FORMAT)
+            gui_send.send(message)
 
 def delete_folder(folder_name):
     if folder_name != "":
         if path.exists(folder_name):
             os.rmdir(folder_name)
-
+            now = datetime.now()
+            today = date.today()
+            current_time = now.strftime("%H:%M:%S")
+            current_date = today.strftime("%d/%m/%Y")
+            default_message = "cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + "DELETE FOLDER"
+            message = default_message.encode(FORMAT)
+            gui_send.send(message)
 #sendPID()
+#def open_logs():
+#    open_new_window = tk.Toplevel(window)
+#    open_new_window.title("Show logs")
+#    open_new_window.geometry("150x300")
 
+
+
+def backup_logs_read():
+    logs_here.delete('1.0',END)
+    back_up_file = open("logs_backup.txt", 'r')
+    log_information = back_up_file.read()
+    print(log_information)
+    logs_here.insert(tk.END, log_information)
+    #log_information = ""
+    back_up_file.close()
 window = Tk()
 window.title("Sistemas Operativos")
-window.geometry("150x300")
+window.state('zoomed')
 #window.state('zoomed')
 
 list_title = tk.Label(window, text="Select one:", fg="black", )
 list_title.config(anchor=CENTER)
 list_title.pack()
 
-lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder"])
+lista = ttk.Combobox(window, values=["Open app", "Close app", "Folder", "Logs"])
 lista.pack()
 lista.current()
 lista.bind("<<ComboboxSelected>>", choose_process)
 
+#logs_here = tk.Text(window)
+#logs_here.pack()
+wrapper1 = LabelFrame(window)
+wrapper2 = LabelFrame(window)
+
+mycanvas = Canvas(wrapper1)
+mycanvas.pack(side=LEFT)
+
+yscrollbar = ttk.Scrollbar(wrapper1, orient="vertical", command=mycanvas.yview)
+yscrollbar.pack(side=RIGHT, fill="y")
+
+mycanvas.configure(yscrollcommand=yscrollbar.set)
+
+mycanvas.bind('<Configure>', lambda e: mycanvas.configure(scrollregion = mycanvas.bbox('all')))
+
+myframe = Frame(mycanvas)
+mycanvas.create_window((0,0), window=myframe, anchor="nw")
+wrapper1.pack(fill="both", expand="yes", padx=10, pady=10)
+wrapper2.pack(fill="both", expand="yes", padx=10, pady=10)
 
 
+logs_history_label = tk.Label(wrapper1, text="Logs History", fg="black", font=("Arial", 15))
+logs_history_label.pack()
+
+logs_here = tk.Text(wrapper1)
+logs_here.pack()
+
+update_button = tk.Button(wrapper2,text= "Update Logs", command = backup_logs_read)
+update_button.pack()
 window.mainloop()
 
 
