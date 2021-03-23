@@ -1,2 +1,2 @@
 @echo off
-taskkill /F /IM "mspaint.exe"
+taskkill /F /IM "Calculator.exe" /T
