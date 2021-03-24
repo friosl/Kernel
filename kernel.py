@@ -6,7 +6,7 @@ import os
 import os.path
 import subprocess
 import time
-
+from random import randrange
 HEADER = 1024
 PORT = 5050
 FORMAT = "utf-8"
@@ -50,8 +50,20 @@ def client_req(conn,addr):
             msg_array = msg.split(',')
             print("MSG ARRAY KERNEL:", msg_array)
             status=msg_array[0]
-            if(status=="status:PROC"):
-                target = msg_array[3]
+            target = msg_array[3]
+            if(status=="status:PROC"):  #MESSAGE PROCESSED
+                if (target == "dst:Application"):
+                    destino=connections["App"]
+                    message = msg.encode(FORMAT) 
+                    destino.send(message)
+                elif(target == "dst:log"):
+                    message = msg.encode(FORMAT)                 
+                    destino=connections["Log"]
+                    destino.send(message)      
+            elif(status=="status:BUSY"):    #MESSAGE BUSY
+                timeWait=randrange(1,3)
+                print("WAITING "+str(timeWait)+" SECONDS....")
+                time.sleep(timeWait)
                 if (target == "dst:Application"):
                     destino=connections["App"]
                     message = msg.encode(FORMAT) 
@@ -60,16 +72,13 @@ def client_req(conn,addr):
                     message = msg.encode(FORMAT)                 
                     destino=connections["Log"]
                     destino.send(message)
-                elif(target=="dst:gui"):
+            elif(status=="status:ERROR"):  #MESSAGE ERROR
+                    destino=connections["App"]
                     message = msg.encode(FORMAT) 
-                    destino=connections["Gui"]
-                    destino.send(message)        
-            elif(status=="status:BUSY"):
-                message=msg.encode(FORMAT)
-                destino=connections["Log"]
-                destino.send(message)
-            elif(status=="status:ERROR"):
-                print("Error")
+                    destino.send(message)
+
+
+                
 
 #--------------------------------------- S T A R T -------------------------------
 def start():

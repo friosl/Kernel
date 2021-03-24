@@ -5,6 +5,7 @@ from datetime import date
 from os import path
 import subprocess
 from random import randrange
+import time
 pid = os.getpid() #Process ID
 
 HEADER = 1024
@@ -34,28 +35,40 @@ while True:
     current_date = today.strftime("%d/%m/%Y")
     messageArray= msg.split(",")
     print("MSG ARRAY:", messageArray)
-    if(messageArray[-1]=="OPEN APP"):
-        status=randrange(1,10)
-        if(status>=1 and status<=7):
-            strstatus="PROC"
+    if(messageArray[0]=="status:BUSY" or messageArray[0]=="status:PROC"):
+        
+        if(messageArray[-1]=="OPEN APP"):
+            subprocess.call("openApp.bat")
+
+            status=randrange(1,10)
+            if(status>=1 and status<=7):
+                strstatus="PROC"
+            elif(status==8 or status==9):
+                strstatus="BUSY"
+            elif(status==10):
+                strstatus="ERROR"
+
             msg="status:"+strstatus+",cmd:send,src:Application,dst:log,msg:'\log: " + current_time + " "+ current_date+ ",OPEN APP"
             msg_send=msg.encode(FORMAT)
             app_send.send(msg_send)
-            subprocess.call("openApp.bat")
-        elif(status==8 or status==9):
-            strstatus="BUSY"
-        elif(status==10):
-            strstatus="ERROR"
-    elif(messageArray[-1]=="CLOSE APP"):
-        status=randrange(1,10)
-        if(status>=1 and status<=7):
-            strstatus="PROC"
+
+
+        elif(messageArray[-1]=="CLOSE APP"):
+            subprocess.call("closeApp.bat")  
+            status=randrange(1,10)
+            if(status>=1 and status<=7):
+                strstatus="PROC"
+            elif(status==8 or status==9):
+                strstatus="BUSY"
+            elif(status==10):
+                strstatus="ERROR"
+
             msg="status:"+strstatus+",cmd:send,src:Application,dst:log,msg:'\log: " + current_time + " "+ current_date + ",CLOSE APP"
             msg_send=msg.encode(FORMAT)
             app_send.send(msg_send)
-            subprocess.call("closeApp.bat")  
-        elif(status==8 or status==9):
-            strstatus="BUSY"
-        elif(status==10):
-            strstatus="ERROR"
+    
+    elif(messageArray[0]=="status:ERROR"):
+        subprocess.call("closeApp.bat")
+        print("CLOSE APPS BY ERROR....")
+
        

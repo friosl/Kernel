@@ -8,7 +8,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from random import randrange
-
+import time
 pid = os.getpid() #Process ID
 
 HEADER = 1024
@@ -57,16 +57,11 @@ def open_application():
         strstatus="BUSY"
     elif(status==10):
         strstatus="ERROR"
-    
+
     default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date+ ",OPEN APP"
     message = default_message.encode(FORMAT)
-    #msg_length = len(message)
-    #send_length = str(msg_length).encode(FORMAT)
-    #send_length += b' '*(HEADER-len(send_length)) #Adding blankspaces
-    #gui_send.send(send_length)
     gui_send.send(message)
-    #Response (Message was received) 
-    #print(client.recv(2048).decode(FORMAT))
+
 
 def close_application():
     now = datetime.now()
@@ -80,9 +75,11 @@ def close_application():
         strstatus="BUSY"
     elif(status==10):
         strstatus="ERROR"
+    
     default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:Application,msg:'\log: " + current_time + " "+ current_date + ",CLOSE APP"
     message = default_message.encode(FORMAT)
-    gui_send.send(message)
+    gui_send.send(message)       
+
 
 def folder_popup():
     open_new_window = tk.Toplevel(window)
@@ -108,14 +105,14 @@ def make_folder(folder_name):
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
             status=randrange(1,10)
+            os.mkdir(folder_name)
             if(status>=1 and status<=7):
                 strstatus="PROC" #MESSAGE PROCESSED
-                os.mkdir(folder_name)
             elif(status==8 or status==9):
                 strstatus="BUSY" #MESSAGE BUSY
             elif(status==10):
                 strstatus="ERROR" #MESSAGE ERROR
-
+            
             default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " CREATE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
@@ -128,13 +125,15 @@ def delete_folder(folder_name):
             current_time = now.strftime("%H:%M:%S")
             current_date = today.strftime("%d/%m/%Y")
             status=randrange(1,10)
+            os.rmdir(folder_name)           
+            
             if(status>=1 and status<=7):
                 strstatus="PROC"
-                os.rmdir(folder_name)
             elif(status==8 or status==9):
                 strstatus="BUSY"
             elif(status==10):
                 strstatus="ERROR"
+            
             default_message = "status:"+strstatus+",cmd:send,src:GUI,dst:log,msg:'\log: " + current_time + " "+ current_date + " DELETE FOLDER"
             message = default_message.encode(FORMAT)
             gui_send.send(message)
@@ -147,6 +146,8 @@ def backup_logs_read():
     print(log_information)
     logs_here.insert(tk.END, log_information)
     back_up_file.close()
+
+
 window = Tk()
 window.title("Sistemas Operativos")
 window.state('zoomed')
